@@ -21,10 +21,12 @@ jobs:
         run: |
           echo "${{ secrets.CRAVE_CONF }}" | base64 -d > $HOME/crave.conf
 
-      - name: Prepare Blossom Manifest
+      - name: Create Manifest Directory
+        run: mkdir -p .repo/local_manifests
+
+      - name: Write Blossom Manifest
         run: |
-          mkdir -p .repo/local_manifests
-          cat > .repo/local_manifests/blossom.xml <<'EOF'
+          cat <<'EOF' > .repo/local_manifests/blossom.xml
 <manifest>
   <project name="xiaomi-blossom-dev/device_xiaomi_blossom" path="device/xiaomi/blossom" remote="github" revision="main" />
   <project name="xiaomi-blossom-dev/proprietary_vendor_xiaomi_blossom" path="vendor/xiaomi/blossom" remote="github" revision="main" />
