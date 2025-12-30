@@ -1,4 +1,4 @@
-name: LineageOS 23 Blossom Build (Crave)
+name: LineageOS 22.1 Blossom Build (Crave)
 
 on:
   workflow_dispatch:
@@ -14,43 +14,32 @@ jobs:
       - name: Install Crave
         run: |
           curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s --
+          sudo mv crave /usr/local/bin/
+          crave version || true
 
-      - name: Write Crave Config
+      - name: Restore crave.conf
         run: |
-          echo "${{ secrets.CRAVE_CONF }}" | base64 --decode > $HOME/crave.conf
+          echo "${{ secrets.CRAVE_CONF }}" | base64 -d > $HOME/crave.conf
 
-      - name: Create Build Script
+      - name: Prepare Blossom Manifest
         run: |
-          printf '%s\n' \
-          '#!/bin/bash' \
-          'set -e' \
-          '' \
-          'repo init -u https://github.com/LineageOS/android.git -b lineage-23.0' \
-          '' \
-          'mkdir -p .repo/local_manifests' \
-          'cat > .repo/local_manifests/blossom.xml <<EOF' \
-          '<manifest>' \
-          '  <project name="xiaomi-blossom-dev/device_xiaomi_blossom" path="device/xiaomi/blossom" remote="github" revision="main" />' \
-          '  <project name="xiaomi-blossom-dev/proprietary_vendor_xiaomi_blossom" path="vendor/xiaomi/blossom" remote="github" revision="main" />' \
-          '  <project name="xiaomi-blossom-dev/kernel_xiaomi_blossom" path="kernel/xiaomi/blossom" remote="github" revision="main" />' \
-          '  <project name="LineageOS/android_device_mediatek_common" path="device/mediatek/common" remote="github" revision="lineage-23.0" />' \
-          '</manifest>' \
-          'EOF' \
-          '' \
-          'repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc)' \
-          '' \
-          'source build/envsetup.sh' \
-          'lunch lineage_blossom-userdebug' \
-          'mka bacon' \
-          > build.sh
-          chmod +x build.sh
+          mkdir -p .repo/local_manifests
+          cat > .repo/local_manifests/blossom.xml <<'EOF'
+<manifest>
+  <project name="xiaomi-blossom-dev/device_xiaomi_blossom" path="device/xiaomi/blossom" remote="github" revision="main" />
+  <project name="xiaomi-blossom-dev/proprietary_vendor_xiaomi_blossom" path="vendor/xiaomi/blossom" remote="github" revision="main" />
+  <project name="xiaomi-blossom-dev/kernel_xiaomi_blossom" path="kernel/xiaomi/blossom" remote="github" revision="main" />
+</manifest>
+EOF
 
-      - name: Start Crave Build
+      - name: Build ROM on Crave
+        env:
+          CRAVE_NOUPDATE: 1
         run: |
-          ./crave -c $HOME/crave.conf run -- bash build.sh
+          crave -n fullbuild 93
 
       - name: Upload ROM
         uses: actions/upload-artifact@v4
         with:
-          name: lineage-blossom-rom
-          path: out/target/product/blossom/
+          name: blossom-rom
+          path: out/target/product/blossom/*.zip
