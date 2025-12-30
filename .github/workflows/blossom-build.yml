@@ -13,23 +13,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Install Crave CLI
       - name: Install Crave
         run: |
           curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s --
 
-      # Login to Crave using real account credentials
+      - name: Write Crave Config
+        run: |
+          echo "${{ secrets.CRAVE_CONF }}" > $HOME/crave.conf
+
       - name: Login Crave
         run: |
-          ./crave login \
-            --user ${{ secrets.CRAVE_USERNAME }} \
-            --token ${{ secrets.CRAVE_TOKEN }} \
-            --ams https://foss.crave.io
+          ./crave -c $HOME/crave.conf login --ams https://foss.crave.io
 
-      # Start Build Using Crave
       - name: Start Crave Build
         run: |
-          ./crave run --cmd "
+          ./crave -c $HOME/crave.conf run --cmd "
           repo init -u https://github.com/LineageOS/android.git -b lineage-23.0
 
           mkdir -p .repo/local_manifests
@@ -49,7 +47,6 @@ jobs:
           mka bacon
           "
 
-      # Upload ROM Output
       - name: Upload ROM
         uses: actions/upload-artifact@v4
         with:
