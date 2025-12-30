@@ -17,9 +17,7 @@ jobs:
 
       - name: Write Crave Config
         run: |
-          cat > $HOME/crave.conf <<EOF
-${{ secrets.CRAVE_CONF }}
-EOF
+          echo "${{ secrets.CRAVE_CONF }}" > $HOME/crave.conf
 
       - name: Create Build Script
         run: |
