@@ -33,12 +33,15 @@ jobs:
           }
           EOF
 
-      # Login
+      # Login Crave
       - name: Login Crave
         run: |
-          ./crave login --token ${{ secrets.CRAVE_TOKEN }} --ams https://foss.crave.io
+          ./crave login \
+            --token ${{ secrets.CRAVE_TOKEN }} \
+            --ams https://foss.crave.io \
+            --user jjjagath9@gmail.com
 
-      # Start Build
+      # Start Build Using Crave
       - name: Start Crave Build
         run: |
           ./crave run --cmd "
