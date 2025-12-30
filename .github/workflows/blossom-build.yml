@@ -18,12 +18,27 @@ jobs:
         run: |
           curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s --
 
-      # Login to Crave
+      # Configure Crave
+      - name: Configure Crave
+        run: |
+          cat > $HOME/crave.conf << 'EOF'
+          {
+            "server": "https://foss.crave.io/api",
+            "projects": [
+              {
+                "name": "lineage_blossom",
+                "repo": "https://github.com/Jagatg/lineage_blossom"
+              }
+            ]
+          }
+          EOF
+
+      # Login
       - name: Login Crave
         run: |
-          ./crave login --token ${{ secrets.CRAVE_TOKEN }}
+          ./crave login --token ${{ secrets.CRAVE_TOKEN }} --ams https://foss.crave.io
 
-      # Start Build Using Crave
+      # Start Build
       - name: Start Crave Build
         run: |
           ./crave run --cmd "
