@@ -17,7 +17,7 @@ jobs:
 
       - name: Write Crave Config
         run: |
-          echo "${{ secrets.CRAVE_CONF }}" > $HOME/crave.conf
+          echo "${{ secrets.CRAVE_CONF }}" | base64 --decode > $HOME/crave.conf
 
       - name: Create Build Script
         run: |
