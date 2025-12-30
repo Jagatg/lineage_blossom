@@ -21,29 +21,20 @@ jobs:
 
       - name: Create Build Script
         run: |
-          cat > build.sh <<'BUILD'
-#!/bin/bash
-set -e
-
-repo init -u https://github.com/LineageOS/android.git -b lineage-23.0
-
-mkdir -p .repo/local_manifests
-cat > .repo/local_manifests/blossom.xml <<EOF
-<manifest>
-  <project name="xiaomi-blossom-dev/device_xiaomi_blossom" path="device/xiaomi/blossom" remote="github" revision="main" />
-  <project name="xiaomi-blossom-dev/proprietary_vendor_xiaomi_blossom" path="vendor/xiaomi/blossom" remote="github" revision="main" />
-  <project name="xiaomi-blossom-dev/kernel_xiaomi_blossom" path="kernel/xiaomi/blossom" remote="github" revision="main" />
-  <project name="LineageOS/android_device_mediatek_common" path="device/mediatek/common" remote="github" revision="lineage-23.0" />
-</manifest>
-EOF
-
-repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc)
-
-source build/envsetup.sh
-lunch lineage_blossom-userdebug
-mka bacon
-BUILD
-
+          echo '#!/bin/bash' > build.sh
+          echo 'set -e' >> build.sh
+          echo 'repo init -u https://github.com/LineageOS/android.git -b lineage-23.0' >> build.sh
+          echo 'mkdir -p .repo/local_manifests' >> build.sh
+          echo '<manifest>' > .repo/local_manifests/blossom.xml
+          echo '  <project name="xiaomi-blossom-dev/device_xiaomi_blossom" path="device/xiaomi/blossom" remote="github" revision="main" />' >> .repo/local_manifests/blossom.xml
+          echo '  <project name="xiaomi-blossom-dev/proprietary_vendor_xiaomi_blossom" path="vendor/xiaomi/blossom" remote="github" revision="main" />' >> .repo/local_manifests/blossom.xml
+          echo '  <project name="xiaomi-blossom-dev/kernel_xiaomi_blossom" path="kernel/xiaomi/blossom" remote="github" revision="main" />' >> .repo/local_manifests/blossom.xml
+          echo '  <project name="LineageOS/android_device_mediatek_common" path="device/mediatek/common" remote="github" revision="lineage-23.0" />' >> .repo/local_manifests/blossom.xml
+          echo '</manifest>' >> .repo/local_manifests/blossom.xml
+          echo 'repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc)' >> build.sh
+          echo 'source build/envsetup.sh' >> build.sh
+          echo 'lunch lineage_blossom-userdebug' >> build.sh
+          echo 'mka bacon' >> build.sh
           chmod +x build.sh
 
       - name: Start Crave Build
