@@ -19,15 +19,14 @@ jobs:
 
       - name: Write Crave Config
         run: |
-          echo "${{ secrets.CRAVE_CONF }}" > $HOME/crave.conf
-
-      - name: Login Crave
-        run: |
-          ./crave -c $HOME/crave.conf login --ams https://foss.crave.io
+          cat > $HOME/crave.conf <<EOF
+${{ secrets.CRAVE_CONF }}
+EOF
+          cat $HOME/crave.conf
 
       - name: Start Crave Build
         run: |
-          ./crave -c $HOME/crave.conf run --cmd "
+          ./crave -c $HOME/crave.conf run --ams https://foss.crave.io --cmd "
           repo init -u https://github.com/LineageOS/android.git -b lineage-23.0
 
           mkdir -p .repo/local_manifests
