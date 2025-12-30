@@ -6,22 +6,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install Crave
         run: |
           curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s --
 
-      - name: Write Crave Config
+      - name: Create crave.conf
         run: |
-          cat > $HOME/crave.conf <<EOF
-${{ secrets.CRAVE_CONF }}
-EOF
+          cat > $HOME/crave.conf << EOF
+          {
+            "username": "${{ secrets.CRAVE_USERNAME }}",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "${{ secrets.CRAVE_TOKEN }}"
+            },
+            "projects": [],
+            "server": "https://foss.crave.io/api"
+          }
+          EOF
 
       - name: Start Crave Build
         run: |
@@ -29,7 +37,7 @@ EOF
           repo init -u https://github.com/LineageOS/android.git -b lineage-23.0
 
           mkdir -p .repo/local_manifests
-          cat > .repo/local_manifests/blossom.xml <<EOF2
+          cat > .repo/local_manifests/blossom.xml << EOF2
           <manifest>
             <project name='xiaomi-blossom-dev/device_xiaomi_blossom' path='device/xiaomi/blossom' remote='github' revision='main' />
             <project name='xiaomi-blossom-dev/proprietary_vendor_xiaomi_blossom' path='vendor/xiaomi/blossom' remote='github' revision='main' />
